@@ -177,7 +177,6 @@ export const FileSearchModal = ({
             <ModalInput
               placeholder="./components/**/*.tsx"
               type="search"
-              required
               autoFocus
               value={searchInputValue}
               onChange={(e) => {

@@ -362,7 +362,6 @@ export const Search = React.memo<SearchProps>(function Search({
         const inputProps = getInputProps({
           id: inputId,
           ref: inputRef,
-          required: true,
           type: 'search',
           placeholder: inputPlaceholder,
           onFocus: () => {
