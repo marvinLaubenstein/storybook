@@ -1,5 +1,5 @@
 {
-  "name": "@storybook/addon-docs",
+  "name": "@marvinlaubenstein/addon-docs",
   "version": "10.1.0-alpha.10",
   "description": "Storybook Docs: Document UI components automatically with stories and MDX",
   "keywords": [
@@ -22,9 +22,9 @@
     "svelte",
     "web-components"
   ],
-  "homepage": "https://github.com/storybookjs/storybook/tree/next/code/addons/docs",
+  "homepage": "https://github.com/marvinLaubenstein/storybook/tree/main/code/addons/docs",
   "bugs": {
-    "url": "https://github.com/storybookjs/storybook/issues"
+    "url": "https://github.com/marvinLaubenstein/storybook/issues"
   },
   "repository": {
     "type": "git",

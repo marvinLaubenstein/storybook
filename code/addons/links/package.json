@@ -1,5 +1,5 @@
 {
-  "name": "@storybook/addon-links",
+  "name": "@marvinlaubenstein/addon-links",
   "version": "10.1.0-alpha.10",
   "description": "Storybook Links: Link stories together to build demos and prototypes with your UI components",
   "keywords": [
@@ -11,13 +11,13 @@
     "component",
     "components"
   ],
-  "homepage": "https://github.com/storybookjs/storybook/tree/next/code/addons/links",
+  "homepage": "https://github.com/marvinLaubenstein/storybook/tree/main/code/addons/links",
   "bugs": {
-    "url": "https://github.com/storybookjs/storybook/issues"
+    "url": "https://github.com/marvinLaubenstein/storybook/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/storybookjs/storybook.git",
+    "url": "https://github.com/marvinLaubenstein/storybook.git",
     "directory": "code/addons/links"
   },
   "funding": {

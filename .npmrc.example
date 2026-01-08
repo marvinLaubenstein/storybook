@@ -1,0 +1,11 @@
+# GitHub Packages Registry Configuration
+# Copy this file to .npmrc and add your GitHub token
+
+@marvinlaubenstein:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN_HERE
+
+# IMPORTANT: 
+# 1. Replace YOUR_GITHUB_TOKEN_HERE with your actual GitHub token
+# 2. Create token at: https://github.com/settings/tokens
+# 3. Required permissions: read:packages, write:packages
+# 4. Add .npmrc to .gitignore!

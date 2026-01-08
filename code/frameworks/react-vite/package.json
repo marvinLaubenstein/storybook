@@ -1,5 +1,5 @@
 {
-  "name": "@storybook/react-vite",
+  "name": "@marvinlaubenstein/react-vite",
   "version": "10.1.0-alpha.10",
   "description": "Storybook for React and Vite: Develop, document, and test UI components in isolation",
   "keywords": [
@@ -10,13 +10,13 @@
     "component",
     "components"
   ],
-  "homepage": "https://github.com/storybookjs/storybook/tree/next/code/frameworks/react-vite",
+  "homepage": "https://github.com/marvinLaubenstein/storybook/tree/main/code/frameworks/react-vite",
   "bugs": {
-    "url": "https://github.com/storybookjs/storybook/issues"
+    "url": "https://github.com/marvinLaubenstein/storybook/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/storybookjs/storybook.git",
+    "url": "https://github.com/marvinLaubenstein/storybook.git",
     "directory": "code/frameworks/react-vite"
   },
   "funding": {
