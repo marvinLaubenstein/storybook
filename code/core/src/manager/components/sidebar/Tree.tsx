@@ -80,10 +80,20 @@ export const LeafNodeStyleWrapper = styled.div(({ theme }) => ({
     '--tree-node-background-hover': theme.background.app,
   },
 
-  '&:hover, &:focus': {
+  '&:hover': {
+    '--tree-node-background-hover': theme.background.hoverable,
+    background: 'var(--tree-node-background-hover)',
+  },
+
+  '&:focus': {
     '--tree-node-background-hover': theme.background.hoverable,
     background: 'var(--tree-node-background-hover)',
     outline: 'none',
+  },
+
+  '&:focus-visible': {
+    outline: `2px solid ${theme.color.secondary}`,
+    outlineOffset: '-2px',
   },
 
   '& [data-displayed="off"]': {
@@ -107,10 +117,22 @@ export const LeafNodeStyleWrapper = styled.div(({ theme }) => ({
     background: theme.base === 'dark' ? darken(0.18, theme.color.secondary) : theme.color.secondary,
     fontWeight: theme.typography.weight.bold,
 
-    '&&:hover, &&:focus': {
+    '&:hover': {
       background:
         theme.base === 'dark' ? darken(0.18, theme.color.secondary) : theme.color.secondary,
     },
+
+    '&:focus': {
+      background:
+        theme.base === 'dark' ? darken(0.18, theme.color.secondary) : theme.color.secondary,
+      outline: 'none',
+    },
+
+    '&:focus-visible': {
+      outline: `2px solid ${theme.color.lightest}`,
+      outlineOffset: '-2px',
+    },
+
     svg: { color: theme.color.lightest },
   },
 
@@ -197,6 +219,33 @@ const statusOrder: StatusValue[] = [
   'status-value:unknown',
 ];
 
+const calculateVisualDepth = (item: Item, collapsedData: Record<string, API_HashEntry>) => {
+  let depth = 0;
+  let currentId = 'parent' in item ? item.parent : undefined;
+
+  while (currentId) {
+    const parent = collapsedData[currentId];
+
+    if (!parent) {
+      break;
+    }
+
+    if (parent.type === 'root') {
+      currentId =
+        'parent' in parent && typeof parent.parent === 'string' ? parent.parent : undefined;
+      continue;
+    }
+
+    if ('children' in parent && Array.isArray(parent.children) && parent.children.length > 0) {
+      depth++;
+    }
+
+    currentId = 'parent' in parent && typeof parent.parent === 'string' ? parent.parent : undefined;
+  }
+
+  return depth;
+};
+
 const Node = React.memo<NodeProps>(function Node(props) {
   const {
     item,
@@ -213,6 +262,7 @@ const Node = React.memo<NodeProps>(function Node(props) {
     setExpanded,
     onSelectStoryId,
     api,
+    collapsedData,
   } = props;
   const theme = useTheme();
   const { isDesktop, isMobile, setMobileMenuOpen } = useLayout();
@@ -220,6 +270,9 @@ const Node = React.memo<NodeProps>(function Node(props) {
   if (!isDisplayed) {
     return null;
   }
+
+  const visualDepth = calculateVisualDepth(item, collapsedData);
+  const nodeDepth = visualDepth;
 
   const statusLinks = useMemo<Link[]>(() => {
     if (item.type === 'story' || item.type === 'docs') {
@@ -387,24 +440,58 @@ const Node = React.memo<NodeProps>(function Node(props) {
       <LeafNodeStyleWrapper
         key={id}
         className="sidebar-item"
+        role="treeitem"
+        aria-level={nodeDepth + 1}
+        aria-selected={isSelected}
         data-selected={isSelected}
         data-ref-id={refId}
         data-item-id={item.id}
         data-parent-id={item.parent}
         data-nodetype={item.type}
         data-highlightable={isDisplayed}
+        tabIndex={0}
         onMouseEnter={contextMenu.onMouseEnter}
+        onKeyDown={(event) => {
+          // Handle keyboard navigation on the focused element (works with NVDA)
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            const button = event.currentTarget.querySelector('button');
+            if (button) {
+              button.click();
+            }
+          } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            event.preventDefault();
+            const button = event.currentTarget.querySelector(
+              'button[aria-expanded]'
+            ) as HTMLButtonElement;
+            if (button) {
+              const isExpanded = button.getAttribute('aria-expanded') === 'true';
+              if (
+                (event.key === 'ArrowRight' && !isExpanded) ||
+                (event.key === 'ArrowLeft' && isExpanded)
+              ) {
+                button.click();
+              }
+            }
+          }
+        }}
       >
         <BranchNode
           id={id}
           style={color && !isSelected ? { color } : {}}
           aria-controls={children.join(' ')}
           aria-expanded={isExpanded}
-          depth={isOrphan ? item.depth : item.depth - 1}
+          depth={nodeDepth}
           isExpandable={children.length > 0}
           isExpanded={isExpanded}
           onClick={(event) => {
             event.preventDefault();
+            const wrapper = (event.currentTarget as HTMLElement).closest(
+              '[data-item-id]'
+            ) as HTMLElement;
+            if (wrapper) {
+              wrapper.focus();
+            }
             if (item.type === 'story') {
               onSelectStoryId(item.id);
               if (!isExpanded || isSelected) {
@@ -419,7 +506,8 @@ const Node = React.memo<NodeProps>(function Node(props) {
               setExpanded({ ids: [item.id], value: !isExpanded });
             }
           }}
-          onMouseEnter={() => {
+          onMouseEnter={(event) => {
+            event.preventDefault();
             if (item.type === 'component' || item.type === 'story') {
               api.emit(PRELOAD_ENTRIES, {
                 ids: [children[0]],
@@ -464,21 +552,41 @@ const Node = React.memo<NodeProps>(function Node(props) {
     <LeafNodeStyleWrapper
       key={id}
       className="sidebar-item"
+      role="treeitem"
+      aria-level={nodeDepth + 1}
+      aria-selected={isSelected}
       data-selected={isSelected}
       data-ref-id={refId}
       data-item-id={item.id}
       data-parent-id={item.parent}
       data-nodetype={nodeType}
       data-highlightable={isDisplayed}
+      tabIndex={0}
       onMouseEnter={contextMenu.onMouseEnter}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          const link = event.currentTarget.querySelector('a');
+          if (link) {
+            link.click();
+          }
+        }
+      }}
     >
       <LeafNode
         style={itemColor && !isSelected ? { color: itemColor } : {}}
         href={getLink(item, refId)}
         id={id}
-        depth={isOrphan ? item.depth : item.depth - 1}
+        depth={nodeDepth}
+        aria-current={isSelected ? 'page' : undefined}
         onClick={(event) => {
           event.preventDefault();
+          const wrapper = (event.currentTarget as HTMLElement).closest(
+            '[data-item-id]'
+          ) as HTMLElement;
+          if (wrapper) {
+            wrapper.focus();
+          }
           onSelectStoryId(item.id);
 
           if (isMobile) {
